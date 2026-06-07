@@ -11,9 +11,13 @@ import type { App } from 'vue'
 
 // Plugins
 import vuetify from './vuetify'
+// TypeScript: firebase is a JS module without typings. Ignore missing declaration file.
+// @ts-ignore
+import firebaseApp from './firebase';
 
 export function registerPlugins (app: App) {
  app.use(vuetify)
+ app.use(firebaseApp)
  app.use(createPinia());
  app.use(router);
 }

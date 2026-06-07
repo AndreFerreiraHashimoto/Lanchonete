@@ -102,7 +102,7 @@
                   size="large"
                   block
                   rounded="lg"
-                  @click="handleGoogleLogin"
+                  @click="signInWithGoogle"
                 >
                   <template #prepend>
                     <svg width="20" height="20" viewBox="0 0 24 24">
@@ -141,6 +141,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 
 const email = ref('')
 const password = ref('')
@@ -153,9 +154,21 @@ const handleLogin = () => {
   setTimeout(() => { loading.value = false }, 1500)
 }
 
-const handleGoogleLogin = () => {
-  // const provider = new GoogleAuthProvider()
-  // await signInWithPopup(auth, provider)
-  console.log('Login com Google')
+const signInWithGoogle = async () => {
+  loading.value = true
+  try {
+    const auth = getAuth()
+    const provider = new GoogleAuthProvider()
+    const result = await signInWithPopup(auth, provider)
+    // const credential = GoogleAuthProvider.credentialFromResult(result)
+    // const token = credential.accessToken
+    const user = result.user
+    console.log('Google sign-in success:', user)
+  } catch (error) {
+    console.error('Google sign-in error:', error)
+  } finally {
+    loading.value = false
+  }
 }
+
 </script>
