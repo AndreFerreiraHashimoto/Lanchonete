@@ -19,11 +19,24 @@
                   Big Bang Burguer
                 </v-card-title>
                 <v-card-subtitle class="text-brown-darken-1">
-                  Faça login ou cadastre-se para continuar
+                  Faça login para continuar
                 </v-card-subtitle>
               </v-card-item>
 
               <v-card-text>
+
+                <!-- Alerta de erro -->
+                <v-alert
+                  v-if="errorMsg"
+                  type="error"
+                  variant="tonal"
+                  rounded="lg"
+                  class="mb-4"
+                  closable
+                  @click:close="errorMsg = ''"
+                >
+                  {{ errorMsg }}
+                </v-alert>
 
                 <!-- E-mail -->
                 <v-text-field
@@ -74,8 +87,8 @@
                   block
                   rounded="lg"
                   :loading="loading"
-                  @click="handleLogin"
                   class="text-white mb-4"
+                  @click="handleLogin"
                 >
                   Entrar
                 </v-btn>
@@ -102,7 +115,8 @@
                   size="large"
                   block
                   rounded="lg"
-                  @click="signInWithGoogle"
+                  :loading="loadingGoogle"
+                  @click="handleGoogleLogin"
                 >
                   <template #prepend>
                     <svg width="20" height="20" viewBox="0 0 24 24">
@@ -131,7 +145,6 @@
               </v-card-actions>
 
             </v-card>
-
           </v-col>
         </v-row>
       </v-container>
@@ -139,36 +152,44 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
+const loadingGoogle = ref(false)
+const errorMsg = ref('')
 
-const handleLogin = () => {
+const handleLogin = async () => {
   loading.value = true
-  // await signInWithEmailAndPassword(auth, email.value, password.value)
-  setTimeout(() => { loading.value = false }, 1500)
-}
-
-const signInWithGoogle = async () => {
-  loading.value = true
+  errorMsg.value = ''
   try {
-    const auth = getAuth()
-    const provider = new GoogleAuthProvider()
-    const result = await signInWithPopup(auth, provider)
-    // const credential = GoogleAuthProvider.credentialFromResult(result)
-    // const token = credential.accessToken
-    const user = result.user
-    console.log('Google sign-in success:', user)
+    // await authStore.signInWithEmail(email.value, password.value)
+    // router.push('/menu')
   } catch (error) {
-    console.error('Google sign-in error:', error)
+    errorMsg.value = 'E-mail ou senha inválidos.'
   } finally {
     loading.value = false
   }
 }
 
+const handleGoogleLogin = async () => {
+  loadingGoogle.value = true
+  errorMsg.value = ''
+  try {
+    await authStore.signInWithGoogle()
+    router.push('/menu')
+  } catch (error) {
+    errorMsg.value = 'Erro ao fazer login com Google.'
+  } finally {
+    loadingGoogle.value = false
+  }
+}
 </script>

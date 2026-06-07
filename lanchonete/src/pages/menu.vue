@@ -7,9 +7,16 @@
 
     <v-navigation-drawer v-model="drawer" temporary>
       <v-list>
-        <v-list-item title="Início" prepend-icon="mdi-home"></v-list-item>
+        <v-list-item title="Início" prepend-icon="mdi-home" to="/menu"></v-list-item>
+        <v-list-item title="Meu Perfil" prepend-icon="mdi-account" to="/account"></v-list-item>
         <v-list-item title="Meu Pedido" prepend-icon="mdi-cart"></v-list-item>
-        <v-list-item title="Contato" prepend-icon="mdi-phone"></v-list-item>
+        <v-divider class="my-2"></v-divider>
+        <v-list-item
+          title="Sair"
+          prepend-icon="mdi-logout"
+          base-color="red"
+          @click="handleLogout"
+        ></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -17,12 +24,11 @@
       <v-container>
         <v-row>
           <template v-for="category in categories" :key="category.id">
-            <!-- Título da Categoria -->
+
             <v-col class="mt-4" cols="12">
               <strong class="text-h6">{{ category.name }}</strong>
             </v-col>
 
-            <!-- Cards dos Produtos -->
             <v-col
               v-for="item in category.items"
               :key="item.id"
@@ -30,12 +36,7 @@
               md="2"
             >
               <v-card rounded="lg" elevation="2" hover>
-                <v-img
-                  :src="item.image"
-                  height="120"
-                  cover
-                >
-                  <!-- Fallback se imagem não carregar -->
+                <v-img :src="item.image" height="120" cover>
                   <template #error>
                     <v-sheet height="120" color="brown-lighten-4" class="d-flex align-center justify-center">
                       <v-icon size="40" color="brown">mdi-hamburger</v-icon>
@@ -63,6 +64,7 @@
                 </v-card-actions>
               </v-card>
             </v-col>
+
           </template>
         </v-row>
       </v-container>
@@ -70,12 +72,34 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
-const drawer = ref(null)
+interface Item {
+  id: number
+  name: string
+  price: number
+  image: string
+}
 
-const categories = ref([
+interface Category {
+  id: number
+  name: string
+  items: Item[]
+}
+
+const router = useRouter()
+const authStore = useAuthStore()
+const drawer = ref<boolean>(false)
+
+const handleLogout = async () => {
+  await authStore.signOut()
+  router.push('/login')
+}
+
+const categories = ref<Category[]>([
   {
     id: 1,
     name: '🍔 Hambúrgueres',
@@ -117,8 +141,8 @@ const categories = ref([
       { id: 401, name: 'Brownie', price: 14.90, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300' },
       { id: 402, name: 'Sorvete', price: 12.90, image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=300' },
       { id: 403, name: 'Cheesecake', price: 16.90, image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=300' },
-      { id: 404, name: 'Pudim', price: 11.90, image: 'https://images.unsplash.com/photo-1702728109878-c61a98d80491?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
-      { id: 405, name: 'Açaí', price: 18.90, image: 'https://images.unsplash.com/photo-1709139068234-f83a548f3bec?q=80&w=626&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+      { id: 404, name: 'Pudim', price: 11.90, image: 'https://images.unsplash.com/photo-1702728109878-c61a98d80491?w=300' },
+      { id: 405, name: 'Açaí', price: 18.90, image: 'https://images.unsplash.com/photo-1709139068234-f83a548f3bec?w=300' },
       { id: 406, name: 'Waffle', price: 20.90, image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=300' },
     ]
   }

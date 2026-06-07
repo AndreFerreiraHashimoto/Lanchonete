@@ -17,7 +17,8 @@ import firebaseApp from './firebase';
 
 export function registerPlugins (app: App) {
  app.use(vuetify)
- app.use(firebaseApp)
+ // firebaseApp is a FirebaseApp instance, not a Vue plugin — provide it to the app instead
+ app.provide('firebase', firebaseApp)
  app.use(createPinia());
  app.use(router);
 }
