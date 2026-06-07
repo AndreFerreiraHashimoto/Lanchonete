@@ -19,7 +19,7 @@
                   Big Bang Burguer
                 </v-card-title>
                 <v-card-subtitle class="text-brown-darken-1">
-                  Faça login para continuar
+                  Faça login ou cadastre-se para continuar
                 </v-card-subtitle>
               </v-card-item>
 
