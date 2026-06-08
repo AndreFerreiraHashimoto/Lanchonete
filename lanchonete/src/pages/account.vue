@@ -307,18 +307,38 @@ const saveEdit = async () => {
 
     if (editField.value === 'name') {
       await updateProfile(currentUser, { displayName: editValue.value })
+      user.value = { ...currentUser, displayName: editValue.value } as User
     } else if (editField.value === 'email') {
-      await updateEmail(currentUser, editValue.value)
+      try {
+        await updateEmail(currentUser, editValue.value)
+        user.value = { ...currentUser, email: editValue.value } as User
+      } catch (err: any) {
+        if (err.code === 'auth/requires-recent-login') {
+          alert('Por segurança, faça logout e login novamente antes de alterar o e-mail.')
+          return
+        }
+        throw err
+      }
     } else if (editField.value === 'password') {
-      await updatePassword(currentUser, editValue.value)
+      try {
+        await updatePassword(currentUser, editValue.value)
+      } catch (err: any) {
+        if (err.code === 'auth/requires-recent-login') {
+          alert('Por segurança, faça logout e login novamente antes de alterar a senha.')
+          return
+        }
+        throw err
+      }
     } else if (editField.value === 'photo') {
       await updateProfile(currentUser, { photoURL: editValue.value })
+      user.value = { ...currentUser, photoURL: editValue.value } as User
     }
+    // Nota: campo 'phone' não pode ser editado via Firebase Auth padrão sem SMS verification
 
-    user.value = { ...currentUser } as User
     editDialog.value = false
   } catch (error) {
     console.error('Erro ao salvar:', error)
+    alert('Ocorreu um erro ao salvar. Tente novamente.')
   } finally {
     saving.value = false
   }

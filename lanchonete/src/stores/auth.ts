@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword } from 'firebase/auth'
 import type { User } from 'firebase/auth'
+import firebaseApp from '@/plugins/firebase'
 
-const auth = getAuth()
+// Garante que o Firebase está inicializado antes de chamar getAuth()
+const auth = getAuth(firebaseApp)
 const googleProvider = new GoogleAuthProvider()
 
 export const useAuthStore = defineStore('auth', {
@@ -13,12 +15,17 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (state): boolean => !!state.user,
   },
   actions: {
+    async signInWithEmail(email: string, password: string) {
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      this.user = result.user
+    },
     async signInWithGoogle() {
       try {
         const result = await signInWithPopup(auth, googleProvider)
         this.user = result.user
       } catch (error) {
         console.error('Erro ao fazer login com Google:', error)
+        throw error
       }
     },
     async signOut() {
@@ -27,6 +34,7 @@ export const useAuthStore = defineStore('auth', {
         this.user = null
       } catch (error) {
         console.error('Erro ao fazer logout:', error)
+        throw error
       }
     },
   },

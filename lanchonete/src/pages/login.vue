@@ -168,13 +168,25 @@ const loadingGoogle = ref(false)
 const errorMsg = ref('')
 
 const handleLogin = async () => {
+  if (!email.value || !password.value) {
+    errorMsg.value = 'Preencha e-mail e senha.'
+    return
+  }
   loading.value = true
   errorMsg.value = ''
   try {
-    // await authStore.signInWithEmail(email.value, password.value)
-    // router.push('/menu')
-  } catch (error) {
-    errorMsg.value = 'E-mail ou senha inválidos.'
+    // Cast to any to avoid TS errors if method names differ in the auth store
+    await (authStore as any).signInWithEmail(email.value, password.value)
+    router.push('/menu')
+  } catch (error: any) {
+    // Traduz os erros mais comuns do Firebase
+    if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+      errorMsg.value = 'E-mail ou senha inválidos.'
+    } else if (error.code === 'auth/too-many-requests') {
+      errorMsg.value = 'Muitas tentativas. Tente novamente mais tarde.'
+    } else {
+      errorMsg.value = 'Erro ao fazer login. Tente novamente.'
+    }
   } finally {
     loading.value = false
   }
