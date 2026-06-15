@@ -1,4 +1,4 @@
-# 🍔 Sistema de Lanchonete
+# 🍔 BigBang Burguer
 
 Sistema web desenvolvido para gerenciamento de uma lanchonete, permitindo autenticação de usuários, gerenciamento de pedidos e integração com Firebase.
 
